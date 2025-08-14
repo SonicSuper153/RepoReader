@@ -5,7 +5,7 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 load_dotenv()
 
 class Brain:
-    def __inti__(self):
+    def __init__(self):
         self.api_key = os.getenv("GOOGLE_API_KEY")
     
     def getLLM(self, max_token: int = 1000, temperature: float = 0.3) -> GoogleGenerativeAI:
@@ -13,7 +13,7 @@ class Brain:
             api_key = self.api_key,
             max_tokens=max_token,
             temperature=temperature,
-            model="gemini-2.5-pro"
+            model="gemini-2.5-flash"
         )
 
     def embeddingsModel(self):
