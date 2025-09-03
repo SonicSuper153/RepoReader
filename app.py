@@ -21,11 +21,12 @@ class ReadMe:
         local_path = self.helper.clone(github_url,repo_name)
         code_text = self.helper.extractCode(local_path)
         summary = self.generator.summarize_code(self.llm,code_text)
-
         if generation_method == "Standard README":
             readme_content = self.generator.generationRead(self.llm,summary)
         else:
             readme_content = self.generator.generation_from_example_stored_in_vectorDB(self.llm,self.embeddings, summary)
+        
+        self.helper.delete(repo_name)
         return readme_content
 
         

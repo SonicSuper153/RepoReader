@@ -1,5 +1,6 @@
 from git import Repo
 import os
+import shutil
 class Helper:
     def clone(self, git_url: str, folder_name: str="cloned_repo") -> str:
         if os.path.exists(folder_name):
@@ -8,6 +9,13 @@ class Helper:
             Repo.clone_from(git_url,folder_name)
             print(f"Repo cloned from {folder_name}")
         return folder_name
+
+    def delete(self, folder_path: str):
+        if os.path.exists(folder_path):
+            shutil.rmtree(folder_path) 
+            print(f"{folder_path} has been deleted.")
+        else:
+            print(f"{folder_path} does not exist.")
 
     def extractCode(self, folder_name: str="cloned_repo") -> str:
         code_text = ""

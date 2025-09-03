@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Git-AI ReadMe Generator</title>
+    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="icon" type="image/png" href="/static/favicon.ico">
+</head>
+<body>
+    <div class="container">
+        <h1>Git-AI ReadMe Generator</h1>
+
+        <form id="readmeForm">
+            <input type="text" id="repo_url" placeholder="Enter GitHub repo URL" required>
+            <select id="generation_method">
+                <option value="Standard README">Standard README</option>
+                <option value="Example-Based">Example-Based</option>
+            </select>
+            <button type="submit">Generate ReadMe</button>
+        </form>
+
+        <h2>Generated README:</h2>
+        <pre id="readme_output" class="output"></pre>
+    </div>
+
+    <script>
+        const form = document.getElementById("readmeForm");
+        form.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const repo_url = document.getElementById("repo_url").value;
+            const generation_method = document.getElementById("generation_method").value;
+
+            const response = await fetch("/api/generate-readme", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ repo_url, generation_method })
+            });
+
+            const data = await response.json();
+            const output = document.getElementById("readme_output");
+
+            if (data.success) {
+                output.textContent = data.readme_content;
+            } else {
+                output.textContent = "Error: " + data.error_message;
+            }
+        });
+    </script>
+</body>
+</html>

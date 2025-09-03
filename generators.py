@@ -9,15 +9,20 @@ class Generators:
 
     def summarize_code(self, llm, code_text):
         text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size = 3000,
-            chunk_overlap = 200,
-            separators=["\nFile","\n","\n\n"," ",""]
+            chunk_size = 1200,
+            chunk_overlap = 100,
+            separators=["\nFile","\n","\n\n"," "]
         )
         chunks = text_splitter.split_text(code_text)
         document = [Document(page_content=chunk) for chunk in chunks] 
         print(f"Split Code into {len(document)} chunk for processing")
         chain = load_summarize_chain(llm, chain_type="map_reduce")
-        return chain.invoke({"input_documents": document})       
+        result = chain.invoke({"input_documents": document})
+
+        if isinstance(result, dict):
+            return result.get("output_text", "")
+        return result
+        # return chain.invoke({"input_documents": document})       
 
     def generationRead(self, llm, summary: str) -> str:
 
@@ -63,12 +68,18 @@ class Generators:
                 chain_type="map_reduce",
                 map_prompt=map_prompt,
                 combine_prompt=combine_prompt,
-                verbose=True
+                verbose=False
             )
 
             # Get condensed summary
             condensed_result = chain.invoke({"input_documents": split_docs})
-            condensed_summary = condensed_result if isinstance(condensed_result, str) else condensed_result.get('output_text', '')
+
+            if isinstance(condensed_result, str):
+                condensed_summary = condensed_result
+            elif isinstance(condensed_result, dict):
+                condensed_summary = condensed_result.get('output_text') or condensed_result.get('text', '')
+            else:
+                condensed_summary = str(condensed_result)
             print(f"Condensed summary from {len(summary)} to {len(condensed_summary)} chars")
         else:
             condensed_summary = summary
@@ -151,9 +162,9 @@ class Generators:
             return self.generate_readme(llm, summary)
 
         vectorstore = FAISS.from_documents(example_docs, embeddings)
-        if len(summary) > 800:
+        if len(summary) > 1000:
             text_splitter = RecursiveCharacterTextSplitter(
-                chunk_size=600,
+                chunk_size=800,
                 chunk_overlap=100,
                 separators=["\n\n", "\n", ". ", " ", ""]
             )
